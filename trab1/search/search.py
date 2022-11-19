@@ -75,47 +75,85 @@ def tinyMazeSearch(problem):
 def depthFirstSearch(problem: SearchProblem):
     """
     Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
 
-    stack = util.Stack()
-    start = problem.getStartState()
-    visited = set()
-    stack.push((start, 0, []))
+    stack = util.Stack()    # pilha para o backtracking
+    start = problem.getStartState() # estado inicial do pacman
+    visited = set()         # nós visitados
+    stack.push((start, 0, []))      # coloca o estado, custo e caminho na pilha
 
     while not stack.isEmpty():
         currState, cost, path = stack.pop()
 
+        # se o nó é a resposta
         if problem.isGoalState(currState):
             return path
 
+        # se o nó ainda não foi visitado
         if currState not in visited:
-            visited.add(currState)
+            visited.add(currState)  # marca o nó como visitado
             
+            # empilha o sucessor do nó atual na pilha
             for new_state, new_action, new_cost in problem.getSuccessors(currState):
                 stack.push((new_state, new_cost + cost, path + [new_action]))
 
-    util.raiseNotDefined()
+    return path
+
 
 def breadthFirstSearch(problem: SearchProblem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    Search the shallowest nodes in the search tree first.
+    """
+
+    queue = util.Queue()    # fila para o backtracking
+    start = problem.getStartState() # estado inicial do pacman
+    visited = set()         # nós visitados
+    queue.push((start, 0, []))      # coloca o estado, custo e caminho na fila
+
+    while not queue.isEmpty():
+        currState, cost, path = queue.pop()
+
+        # se o nó é a resposta
+        if problem.isGoalState(currState):
+            return path
+
+        # se o nó ainda não foi visitado
+        if currState not in visited:
+            visited.add(currState)  # marca o nó como visitado
+            
+            # coloca o sucessor do nó atual na fila
+            for new_state, new_action, new_cost in problem.getSuccessors(currState):
+                queue.push((new_state, new_cost + cost, path + [new_action]))
+
+    return path
+
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    queue = util.PriorityQueue()    # fila para o backtracking
+    start = problem.getStartState() # estado inicial do pacman
+    visited = set()         # nós visitados
+    queue.push((start, 0, []), 0)      # coloca o estado, custo e caminho na fila
+
+    while not queue.isEmpty():
+        currState, currCost, currPath = queue.pop()
+
+        # se o nó é a resposta
+        if problem.isGoalState(currState):
+            return currPath
+
+        # se o nó ainda não foi visitado
+        if currState not in visited:
+            visited.add(currState)  # marca o nó como visitado
+            
+            # coloca o sucessor do nó atual na fila
+            for new_state, new_action, new_cost in problem.getSuccessors(currState):
+                cost = new_cost + currCost
+                queue.push((new_state, cost, currPath + [new_action]), cost)
+
+    return currPath
+    
 
 def nullHeuristic(state, problem=None):
     """
@@ -126,8 +164,31 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    queue = util.PriorityQueue()    # fila para o backtracking
+    start = problem.getStartState() # estado inicial do pacman
+    visited = []         # nós visitados
+    queue.push((start, 0, []), heuristic(start, problem))      # coloca o estado, custo e caminho na fila
+
+    while not queue.isEmpty():
+        currState, currCost, currPath = queue.pop()
+
+        # se o nó é a resposta
+        if problem.isGoalState(currState):
+            return currPath
+
+        # se o nó ainda não foi visitado
+        if currState not in visited:
+            visited.append(currState)  # marca o nó como visitado
+            
+            # coloca o sucessor do nó atual na fila
+            for new_state, new_action, new_cost in problem.getSuccessors(currState):
+                gCost = new_cost + currCost             # g(n) - custo do inicio até atual
+                hCost = heuristic(new_state, problem)   # h(n) - custo do atual até final
+                fCost = gCost + hCost                   # f(n) - custo da solução 
+                queue.push((new_state, gCost, currPath + [new_action]), fCost)
+
+    return currPath 
 
 
 # Abbreviations

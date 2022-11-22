@@ -292,6 +292,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.state = (self.startingPosition, 0, ())    # tupla com posição, custo e corners visitados
 
     def getStartState(self):
         """
@@ -299,14 +300,23 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.state
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        # ver se o state é algum dos cantos
+        coords, cost, corners = state
+        x, y = coords
+
+        if (x, y) in self.corners:
+            if (x, y) not in corners:
+                corners.add((x, y))
+
+        return len(corners) == len(self.corners)
 
     def getSuccessors(self, state: Any):
         """

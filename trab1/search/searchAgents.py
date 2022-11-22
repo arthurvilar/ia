@@ -292,7 +292,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.state = (self.startingPosition, 0, ())    # tupla com posição, custo e corners visitados
+        self.visitedCorners = []
+        #self.state = (self.startingPosition, 0, ())    # tupla com posição, custo e corners visitados
 
     def getStartState(self):
         """
@@ -300,23 +301,26 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return self.state
+        return (self.startingPosition, self.visitedCorners)
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        
-        # ver se o state é algum dos cantos
-        coords, cost, corners = state
+
+        """ coords, corners = state
         x, y = coords
 
-        if (x, y) in self.corners:
-            if (x, y) not in corners:
-                corners.add((x, y))
+        if (x, y) in self.corners:      # se é um canto
+            if (x, y) not in corners:   # se ainda não foi visitado
+                corners.append((x, y))  #return false else return true
 
-        return len(corners) == len(self.corners)
+        #print ("\nCANTOS VISITADOS: ", self.visitedCorners)
+        return len(corners) == len(self.corners) and (x, y) in self.corners """
+
+        print ("\nCANTOS VISITADOS: ", self.visitedCorners)
+        return len(self.visitedCorners) == 4
 
     def getSuccessors(self, state: Any):
         """
@@ -330,15 +334,29 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
-
             "*** YOUR CODE HERE ***"
+            
+            # checa se bate em uma parede
+            x, y = state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+
+            if not hitsWall:
+                nextPosition = (nextx, nexty)
+                
+                if nextPosition in self.corners:
+                    if nextPosition not in self.visitedCorners:
+                        self.visitedCorners.append(nextPosition)
+
+                successors.append(((nextPosition, self.visitedCorners), action, 1)) # (state, action, cost)
+
+            """ if not hitsWall:
+                nextPosition = (nextx, nexty)
+                successors.append(((nextPosition, self.visitedCorners), action, 1)) # (state, action, cost) """
 
         self._expanded += 1 # DO NOT CHANGE
         return successors

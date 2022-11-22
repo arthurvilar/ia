@@ -79,7 +79,7 @@ def depthFirstSearch(problem: SearchProblem):
 
     stack = util.Stack()    # pilha para o backtracking
     start = problem.getStartState() # estado inicial do pacman
-    visited = set()         # nós visitados
+    visited = []         # nós visitados
     stack.push((start, 0, []))      # coloca o estado, custo e caminho na pilha
 
     while not stack.isEmpty():
@@ -91,7 +91,7 @@ def depthFirstSearch(problem: SearchProblem):
 
         # se o nó ainda não foi visitado
         if currState not in visited:
-            visited.add(currState)  # marca o nó como visitado
+            visited.append(currState)  # marca o nó como visitado
             
             # empilha o sucessor do nó atual na pilha
             for new_state, new_action, new_cost in problem.getSuccessors(currState):
@@ -107,7 +107,7 @@ def breadthFirstSearch(problem: SearchProblem):
 
     queue = util.Queue()    # fila para o backtracking
     start = problem.getStartState() # estado inicial do pacman
-    visited = set()         # nós visitados
+    visited = []         # nós visitados
     queue.push((start, 0, []))      # coloca o estado, custo e caminho na fila
 
     while not queue.isEmpty():
@@ -119,7 +119,7 @@ def breadthFirstSearch(problem: SearchProblem):
 
         # se o nó ainda não foi visitado
         if currState not in visited:
-            visited.add(currState)  # marca o nó como visitado
+            visited.append(currState)  # marca o nó como visitado
             
             # coloca o sucessor do nó atual na fila
             for new_state, new_action, new_cost in problem.getSuccessors(currState):
@@ -133,7 +133,7 @@ def uniformCostSearch(problem: SearchProblem):
 
     queue = util.PriorityQueue()    # fila para o backtracking
     start = problem.getStartState() # estado inicial do pacman
-    visited = set()         # nós visitados
+    visited = []         # nós visitados
     queue.push((start, 0, []), 0)      # coloca o estado, custo e caminho na fila
 
     while not queue.isEmpty():
@@ -145,7 +145,7 @@ def uniformCostSearch(problem: SearchProblem):
 
         # se o nó ainda não foi visitado
         if currState not in visited:
-            visited.add(currState)  # marca o nó como visitado
+            visited.append(currState)  # marca o nó como visitado
             
             # coloca o sucessor do nó atual na fila
             for new_state, new_action, new_cost in problem.getSuccessors(currState):

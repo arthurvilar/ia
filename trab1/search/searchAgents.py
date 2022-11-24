@@ -375,16 +375,38 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
+    corners = problem.corners # These are the corner currPos
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
 
-    # ver a distancia do state atual o canto mais proximo
-    # ver a distancia do canto mais proximo pro outro canto mais proximo
-    # somar essas distancias
+    currPos = state[0]          # (x, y)
+    visitedCorners = state[1]   # lista
+    unvisitedCorners = []
+    totalDistance = 0
 
-    return 0 # Default to trivial solution
+    # acha os cantos que ainda não foram visitados 
+    for corner in corners:
+        if corner not in visitedCorners:
+            unvisitedCorners.append(corner)
+
+    # acha o canto com a menor distancia manhattan
+    while unvisitedCorners:
+        minimum = 1000000   # menor distancia
+        nextCorner = None   # canto referente a menor distancia
+
+        for corner in unvisitedCorners:
+            distance = util.manhattanDistance(currPos, corner) 
+
+            if distance < minimum:
+                minimum = distance 
+                nextCorner = corner 
+
+        currPos = nextCorner    # a proxima distancia é calculada a partir do canto atual
+        unvisitedCorners.remove(nextCorner)  # remove o canto atual da lista de não visitados 
+        totalDistance += minimum
+
+    return totalDistance
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -463,7 +485,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
     The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a Grid
     (see game.py) of either True or False. You can call foodGrid.asList() to get
-    a list of food coordinates instead.
+    a list of food currPos instead.
 
     If you want access to info like walls, capsules, etc., you can query the
     problem.  For example, problem.walls gives you a Grid of where the walls
@@ -477,8 +499,42 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
+
     "*** YOUR CODE HERE ***"
-    return 0
+
+    """ if problem.isGoalState(state):
+        return 0
+
+    distances = []
+    listGrid = foodGrid.asList()
+
+    for foodCoord in listGrid:
+        if (position, foodCoord) in problem.heuristicInfo:
+            distances.append(problem.heuristicInfo[(position, foodCoord)])
+        else:
+            value = mazeDistance(position, foodCoord, problem.startingGameState)
+            problem.heuristicInfo[(position, foodCoord)] = value
+            distances.append(value)
+
+    return max(distances) """
+
+    if problem.isGoalState(state):
+        return 0
+
+    listGrid = foodGrid.asList()
+    maximum = -1
+
+    for foodCoord in listGrid:
+        if (position, foodCoord) in problem.heuristicInfo:
+            if problem.heuristicInfo[(position, foodCoord)] > maximum:
+                maximum = problem.heuristicInfo[(position, foodCoord)]
+        else:
+            value = mazeDistance(position, foodCoord, problem.startingGameState)
+            problem.heuristicInfo[(position, foodCoord)] = value
+            if value > maximum:
+                maximum = value
+
+    return maximum
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"

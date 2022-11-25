@@ -390,11 +390,12 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
         if corner not in visitedCorners:
             unvisitedCorners.append(corner)
 
-    # acha o canto com a menor distancia manhattan
+    # acha o menor caminho entre a posição inicial e a posição final
     while unvisitedCorners:
         minimum = 1000000   # menor distancia
         nextCorner = None   # canto referente a menor distancia
 
+        # acha o canto com a menor distancia manhattan
         for corner in unvisitedCorners:
             distance = util.manhattanDistance(currPos, corner) 
 
@@ -501,22 +502,6 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     position, foodGrid = state
 
     "*** YOUR CODE HERE ***"
-
-    """ if problem.isGoalState(state):
-        return 0
-
-    distances = []
-    listGrid = foodGrid.asList()
-
-    for foodCoord in listGrid:
-        if (position, foodCoord) in problem.heuristicInfo:
-            distances.append(problem.heuristicInfo[(position, foodCoord)])
-        else:
-            value = mazeDistance(position, foodCoord, problem.startingGameState)
-            problem.heuristicInfo[(position, foodCoord)] = value
-            distances.append(value)
-
-    return max(distances) """
 
     if problem.isGoalState(state):
         return 0

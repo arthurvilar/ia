@@ -131,10 +131,10 @@ def breadthFirstSearch(problem: SearchProblem):
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
 
-    queue = util.PriorityQueue()    # fila para o backtracking
+    queue = util.PriorityQueue()    # fila de prioridade para o backtracking
     start = problem.getStartState() # estado inicial do pacman
     visited = []         # nós visitados
-    queue.push((start, 0, []), 0)      # coloca o estado, custo e caminho na fila
+    queue.push((start, 0, []), 0) 
 
     while not queue.isEmpty():
         currState, currCost, currPath = queue.pop()
@@ -165,10 +165,10 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     
-    queue = util.PriorityQueue()    # fila para o backtracking
+    queue = util.PriorityQueue()    # fila de prioridade para o backtracking
     start = problem.getStartState() # estado inicial do pacman
     visited = []         # nós visitados
-    queue.push((start, 0, []), heuristic(start, problem))      # coloca o estado, custo e caminho na fila
+    queue.push((start, 0, []), heuristic(start, problem)) 
 
     while not queue.isEmpty():
         currState, currCost, currPath = queue.pop()

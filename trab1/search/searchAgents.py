@@ -507,16 +507,19 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         return 0
 
     listGrid = foodGrid.asList()
-    maximum = -1
+    maximum = 0
 
+    # para cada comida no tabuleiro
     for foodCoord in listGrid:
+        # confere no dicionario se a distancia até a comida ja foi calculada
         if (position, foodCoord) in problem.heuristicInfo:
-            if problem.heuristicInfo[(position, foodCoord)] > maximum:
+            if problem.heuristicInfo[(position, foodCoord)] > maximum: # confere se a dist calculada é maior que a maxima 
                 maximum = problem.heuristicInfo[(position, foodCoord)]
+        # calcula a distancia caso ainda nao tenha sido calculada
         else:
             value = mazeDistance(position, foodCoord, problem.startingGameState)
             problem.heuristicInfo[(position, foodCoord)] = value
-            if value > maximum:
+            if value > maximum: # confere se a dist calculada é maior que a maxima 
                 maximum = value
 
     return maximum
@@ -587,11 +590,9 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
         "*** YOUR CODE HERE ***"
         
-        #return state in self.food.asList()
-
-        foodlist = self.food.asList()
-        if state in foodlist:
+        if state in self.food.asList():
             return True
+            
         return False
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:

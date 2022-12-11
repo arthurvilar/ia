@@ -15,6 +15,7 @@
 from util import manhattanDistance
 from game import Directions
 import random, util
+import sys
 
 from game import Agent
 from pacman import GameState
@@ -76,11 +77,15 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
 
+        scaredTime = min(newScaredTimes)
+
+        # distancia do fantasma mais perto
         aux = []
         for ghostState in newGhostStates:
             aux.append(manhattanDistance(newPos, ghostState.getPosition()))
         closestGhostDistance = min(aux)
 
+        # distancia da comida mais perto
         newFood = newFood.asList()
         if newFood:
             aux = []
@@ -90,18 +95,16 @@ class ReflexAgent(Agent):
         else:
             return 0
 
-        scaredTime = min(newScaredTimes)
-
-        # It is bad to have remaining pellets, very bad!
+        # quanto mais comida sobrando, menor o score
         remainingFoodScore = -len(newFood)
         
-        # It is bad to be closed to ghost, but if they are harmless, is not so bad (better not to eat them)
+        # quanto mais perto do fantasma, menor o score (a nao ser que o fantama esteja comestivel)
         if scaredTime == 0:
             ghostScore = -2 / (closestGhostDistance + 1)  
         else:
             ghostScore = 0.5 / (closestGhostDistance + 1)
         
-        # It is bad to be fat from food
+        # quanto mais longe da comida, menor o score
         foodScore = 0.5 / (closestFoodDistance + 1)
         
         # Power pellets are good, but not that good
@@ -167,8 +170,72 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
+
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        max_value, next_action = self.minimaxDecision(gameState, 0, self.depth)
+        return next_action
+
+    def minimaxDecision(self, gameState, agentIndex, depth):
+
+        # coloca os scores nas folhas da arvore
+        if depth == 0 or gameState.isLose() or gameState.isWin():
+            return self.evaluationFunction(gameState), None
+
+        # se agente for pacman usa maxValue, se for fantasma usa minValue
+        if agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, depth)
+        else:
+            return self.minValue(gameState, agentIndex, depth)
+
+    def minValue(self, gameState, agentIndex, depth):
+
+        minScore = float("inf")
+        minAction = None
+
+        # se o agente for o último fantasma, o prox agente é o pacman
+        # se não o prox agente é o prox fantasma
+        if agentIndex == gameState.getNumAgents() - 1:
+            nextAgent = 0
+            nextDepth = depth - 1
+        else:
+            nextAgent = agentIndex + 1
+            nextDepth = depth
+
+        # acha a melhor opção entre todas as ações possíveis
+        for action in gameState.getLegalActions(agentIndex):
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            newScore, newAction = self.minimaxDecision(successorGameState, nextAgent, nextDepth)
+
+            if newScore < minScore:
+                minScore = newScore
+                minAction = action
+
+        return minScore, minAction
+
+    def maxValue(self, gameState, agentIndex, depth):
+
+        maxScore = float("-inf")
+        maxAction = None
+
+        # se o agente for o último fantasma, o prox agente é o pacman
+        # se não o prox agente é o prox fantasma
+        if agentIndex == gameState.getNumAgents() - 1:
+            nextAgent = 0
+            nextDepth = depth - 1
+        else:
+            nextAgent = agentIndex + 1
+            nextDepth = depth
+
+        # acha a melhor opção entre todas as ações possíveis
+        for action in gameState.getLegalActions(agentIndex):
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            newScore, newAction = self.minimaxDecision(successorGameState, nextAgent, nextDepth)
+
+            if newScore > maxScore:
+                maxScore = newScore
+                maxAction = action
+
+        return maxScore, maxAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -179,8 +246,81 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
+
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        max_value, next_action = self.alphaBetaDecision(gameState, 0, self.depth, float("-inf"), float("inf"))
+        return next_action
+
+    def alphaBetaDecision(self, gameState, agentIndex, depth, alpha, beta):
+
+        # coloca os scores nas folhas da arvore
+        if depth == 0 or gameState.isLose() or gameState.isWin():
+            return self.evaluationFunction(gameState), None
+
+        # se agente for pacman usa maxValue, se for fantasma usa minValue
+        if agentIndex == 0:
+            return self.alphaValue(gameState, agentIndex, depth, alpha, beta)
+        else:
+            return self.betaValue(gameState, agentIndex, depth, alpha, beta)
+
+    def alphaValue(self, gameState, agentIndex, depth, alpha, beta):
+
+        maxScore = float("-inf")
+        maxAction = None
+
+        # se o agente for o último fantasma, o prox agente é o pacman
+        # se não o prox agente é o prox fantasma
+        if agentIndex == gameState.getNumAgents() - 1:
+            nextAgent = 0
+            nextDepth = depth - 1
+        else:
+            nextAgent = agentIndex + 1
+            nextDepth = depth
+
+        for action in gameState.getLegalActions(agentIndex):
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            newScore, aux = self.alphaBetaDecision(successorGameState, nextAgent, nextDepth, alpha, beta)
+
+            if newScore > maxScore:
+                maxScore = newScore
+                maxAction = action
+
+            if newScore > beta:
+                return newScore, action
+
+            alpha = max(alpha, maxScore)
+
+        return maxScore, maxAction
+
+    def betaValue(self, gameState, agentIndex, depth, alpha, beta):
+
+        minScore = float("inf")
+        minAction = None
+
+        # se o agente for o último fantasma, o prox agente é o pacman
+        # se não o prox agente é o prox fantasma
+        if agentIndex == gameState.getNumAgents() - 1:
+            nextAgent = 0
+            nextDepth = depth - 1
+        else:
+            nextAgent = agentIndex + 1
+            nextDepth = depth
+
+        for action in gameState.getLegalActions(agentIndex):
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            newScore, aux = self.alphaBetaDecision(successorGameState, nextAgent, nextDepth, alpha, beta)
+
+            if newScore < minScore:
+                minScore = newScore
+                minAction = action
+            
+            if newScore < alpha:
+                return newScore, action
+            
+            beta = min(beta, minScore)
+
+        return minScore, minAction
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """

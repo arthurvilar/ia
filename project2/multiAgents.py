@@ -258,7 +258,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if depth == 0 or gameState.isLose() or gameState.isWin():
             return self.evaluationFunction(gameState), None
 
-        # se agente for pacman usa maxValue, se for fantasma usa minValue
+        # se agente for pacman usa alphaValue, se for fantasma usa betaValue
         if agentIndex == 0:
             return self.alphaValue(gameState, agentIndex, depth, alpha, beta)
         else:
@@ -335,7 +335,71 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        max_value, next_action = self.expectimaxDecision(gameState, 0, self.depth)
+        return next_action
+
+    def expectimaxDecision(self, gameState, agentIndex, depth):
+
+        # coloca os scores nas folhas da arvore
+        if depth == 0 or gameState.isLose() or gameState.isWin():
+            return self.evaluationFunction(gameState), None
+
+        # se agente for pacman usa maxValue, se for fantasma usa expectationValue
+        if agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, depth)
+        else:
+            return self.expectationValue(gameState, agentIndex, depth)
+
+    def maxValue(self, gameState, agentIndex, depth):
+
+        maxScore = float("-inf")
+        maxAction = None
+
+        # se o agente for o último fantasma, o prox agente é o pacman
+        # se não o prox agente é o prox fantasma
+        if agentIndex == gameState.getNumAgents() - 1:
+            nextAgent = 0
+            nextDepth = depth - 1
+        else:
+            nextAgent = agentIndex + 1
+            nextDepth = depth
+
+        # acha a melhor opção entre todas as ações possíveis
+        for action in gameState.getLegalActions(agentIndex):
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            newScore, newAction = self.expectimaxDecision(successorGameState, nextAgent, nextDepth)
+
+            if newScore > maxScore:
+                maxScore = newScore
+                maxAction = action
+
+        return maxScore, maxAction
+
+    def expectationValue(self, gameState, agentIndex, depth):
+
+        score = 0
+        action = None
+        actions = gameState.getLegalActions(agentIndex)
+
+        # se o agente for o último fantasma, o prox agente é o pacman
+        # se não o prox agente é o prox fantasma
+        if agentIndex == gameState.getNumAgents() - 1:
+            nextAgent = 0
+            nextDepth = depth - 1
+        else:
+            nextAgent = agentIndex + 1
+            nextDepth = depth
+
+        # acha a melhor opção entre todas as ações possíveis
+        for action in actions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            newScore, newAction = self.expectimaxDecision(successorGameState, nextAgent, nextDepth)
+            score += newScore
+
+        score = score/len(actions)
+
+        return score, action
 
 def betterEvaluationFunction(currentGameState: GameState):
     """

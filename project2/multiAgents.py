@@ -387,19 +387,16 @@ def betterEvaluationFunction(currentGameState: GameState):
     """
     "*** YOUR CODE HERE ***"
 
-    pacManState = currentGameState.getPacmanState()
-    newPos = currentGameState.getPacmanPosition()
     newFood = currentGameState.getFood()
+    gameScore = currentGameState.getScore() 
+    newPos = currentGameState.getPacmanPosition()
     newGhostStates = currentGameState.getGhostStates()
-    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
-    scaredTime = min(newScaredTimes)
 
     # distancia do fantasma mais perto
     aux = []
     for ghostState in newGhostStates:
         aux.append(manhattanDistance(newPos, ghostState.getPosition()))
-    closestGhostDistance = min(aux)
+    closestGhost = min(aux)
 
     # distancia da comida mais perto
     newFood = newFood.asList()
@@ -407,34 +404,39 @@ def betterEvaluationFunction(currentGameState: GameState):
         aux = []
         for food in newFood:
             aux.append(manhattanDistance(newPos, food))
-        closestFoodDistance = min(aux)
+        closestFood = min(aux)
     else:
-        return 0
-        
-    # quanto mais perto do fantasma, menor o score (a nao ser que o fantama esteja comestivel)
-    if scaredTime == 0:
-        ghostScore = -4 / (closestGhostDistance + 1)  
+        closestFood = 0
+
+    return (10/(closestFood+1)) + (200*gameScore) 
+
+    """ newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    gameScore = currentGameState.getScore() 
+
+    # distancia do fantasma mais perto
+    aux = []
+    for ghostState in newGhostStates:
+        aux.append(manhattanDistance(newPos, ghostState.getPosition()))
+    closestGhost = min(aux)
+    if closestGhost < 2:
+        closestFood = 100000
+
+    # distancia da comida mais perto
+    newFood = newFood.asList()
+    if newFood:
+        aux = []
+        for food in newFood:
+            aux.append(manhattanDistance(newPos, food))
+        closestFood = min(aux)
     else:
-        ghostScore = 1 / (closestGhostDistance + 1)
+        closestFood = 0
 
     # quanto mais comida sobrando, menor o score
     remainingFoodScore = -len(newFood)
-    
-    # quanto mais longe da comida, menor o score
-    foodScore = 2 / (closestFoodDistance + 1)
-    
-    # Power pellets are good, but not that good
-    powerScore = scaredTime * 0.5
 
-    directionScore = 0
-    if pacManState.getDirection() == "Stop":
-        directionScore = -0.5
-    else:
-        directionScore = 1
-
-    #gameScore = currentGameState.getScore() 
-
-    return remainingFoodScore + ghostScore + foodScore + powerScore + directionScore
+    return (10/(closestFood+1)) + (200*gameScore) + (100*remainingFoodScore) """
 
 # Abbreviation
 better = betterEvaluationFunction

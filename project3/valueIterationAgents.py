@@ -34,7 +34,6 @@ import collections
 class ValueIterationAgent(ValueEstimationAgent):
     """
         * Please read learningAgents.py before reading this.*
-
         A ValueIterationAgent takes a Markov decision process
         (see mdp.py) on initialization and runs value iteration
         for a given number of iterations using the supplied
@@ -45,7 +44,6 @@ class ValueIterationAgent(ValueEstimationAgent):
           Your value iteration agent should take an mdp on
           construction, run the indicated number of iterations
           and then act according to the resulting policy.
-
           Some useful mdp methods you will use:
               mdp.getStates()
               mdp.getPossibleActions(state)
@@ -65,15 +63,22 @@ class ValueIterationAgent(ValueEstimationAgent):
           value iteration, V_k+1(...) depends on V_k(...)'s.
         """
         "*** YOUR CODE HERE ***"
+        
         next_values = self.values.copy()
-        for iter_nums in range(self.iterations):
+
+        for iterations in range(self.iterations):
             for state in self.mdp.getStates():
+
+                values = []
+
                 if self.mdp.isTerminal(state):
                     continue
-                next_values[state] = max([self.getQValue(state, action)
-                                          for action in self.mdp.getPossibleActions(state)])
-            # we need to update the global value dict in time,
-            # computeQValue will use the newest values of states
+                
+                for action in self.mdp.getPossibleActions(state):
+                    values.append(self.getQValue(state, action))
+
+                next_values[state] = max(values)
+            
             self.values = next_values.copy()
 
     def getValue(self, state):
@@ -88,25 +93,29 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
+
         successors = self.mdp.getTransitionStatesAndProbs(state, action)
-        qval = 0
+        q_value = 0
+
         for next_state, prob in successors:
-            qval += prob * (self.mdp.getReward(state, action, next_state)
-                            + self.discount * self.getValue(next_state))
-        return qval
+            q_value += prob * (self.mdp.getReward(state, action, next_state) + self.discount * self.getValue(next_state))
+        
+        return q_value
 
     def computeActionFromValues(self, state):
         """
           The policy is the best action in the given state
           according to the values currently stored in self.values.
-
           You may break ties any way you see fit.  Note that if
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
+        
         policy = util.Counter()
-        for action in self.mdp.getPossibleActions(state):
+        actions = self.mdp.getPossibleActions(state)
+
+        for action in actions:
             policy[action] = self.getQValue(state, action)
 
         return policy.argMax()
